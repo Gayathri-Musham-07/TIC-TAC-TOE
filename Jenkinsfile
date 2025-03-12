@@ -1,1 +1,1 @@
-hii
+echo "Hello, Jenkins!"
