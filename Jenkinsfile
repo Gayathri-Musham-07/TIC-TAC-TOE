@@ -17,7 +17,6 @@ pipeline {
                     echo "Cloning repository..."
                     rm -rf TIC-TAC-TOE  # Remove old files if they exist
                     git clone https://github.com/Gayathri-Musham-07/TIC-TAC-TOE.git
-
                     '''
                 }
             }
@@ -38,21 +37,22 @@ pipeline {
                     sh '''
                     echo "Transferring application files to EC2..."
                     ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "mkdir -p $APP_DIR"
+
                     scp -o StrictHostKeyChecking=no -r TIC-TAC-TOE/* $EC2_USER@$EC2_HOST:$APP_DIR/
 
                     echo "Deploying application..."
-                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-                    cd $APP_DIR
+                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
+cd $APP_DIR
 
-                    # Kill existing Python server if running
-                    echo "Stopping existing Python server (if any)..."
-                    pkill -f "python3 -m http.server 8000" || true
+# Kill existing Python server if running
+echo "Stopping existing Python server (if any)..."
+pkill -f "python3 -m http.server 8000" || true
 
-                    echo "Starting new Python web server..."
-                    nohup python3 -m http.server 8000 > server.log 2>&1 &
+echo "Starting new Python web server..."
+nohup python3 -m http.server 8000 > server.log 2>&1 &
 
-                    echo "Deployment Complete! Access at http://$EC2_HOST:8000"
-                    EOF
+echo "Deployment Complete! Access at http://$EC2_HOST:8000"
+EOF
                     '''
                 }
             }
