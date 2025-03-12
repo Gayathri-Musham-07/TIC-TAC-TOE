@@ -16,7 +16,7 @@ pipeline {
                     sh '''
                     echo "Cloning repository..."
                     rm -rf TIC-TAC-TOE  # Remove old files if they exist
-                    git clone https://$GITHUB_TOKEN@github.com/Gayathri-Musham-07/TIC-TAC-TOE.git
+                    git clone https://github.com/Gayathri-Musham-07/TIC-TAC-TOE.git
                     cd TIC-TAC-TOE
                     git pull origin main
                     '''
