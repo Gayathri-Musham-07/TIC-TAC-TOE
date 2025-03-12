@@ -1,11 +1,11 @@
 pipeline {
-    agent { label 'deploy' }  // Updated agent label
+    agent { label 'deploy' }
 
     environment {
-        AWS_ACCOUNT_ID = '043309327282'  // Updated Account ID
-        AWS_REGION = 'ap-south-1'        // Updated AWS Region
+        AWS_ACCOUNT_ID = '043309327282'
+        AWS_REGION = 'ap-south-1'
         EC2_USER = 'ubuntu'
-        EC2_HOST = '43.204.211.223'      // Deployment server IP
+        EC2_HOST = '43.204.211.223'
         APP_DIR = '/home/ubuntu/tic-tac-toe'
     }
 
@@ -16,9 +16,7 @@ pipeline {
                     sh '''
                     echo "Cloning repository..."
                     rm -rf TIC-TAC-TOE  # Remove old files if they exist
-                    git clone https://github.com/Gayathri-Musham-07/TIC-TAC-TOE.git
-                    cd TIC-TAC-TOE
-                    git pull origin main
+                    git clone https://$GITHUB_TOKEN@github.com/Gayathri-Musham-07/TIC-TAC-TOE.git TIC-TAC-TOE
                     '''
                 }
             }
@@ -27,8 +25,8 @@ pipeline {
         stage('Run Linter') {
             steps {
                 sh '''
-                chmod +x run-linter.sh  # Ensure script is executable
-                ./run-linter.sh  # Run the script
+                chmod +x run-linter.sh
+                ./run-linter.sh
                 '''
             }
         }
@@ -39,13 +37,17 @@ pipeline {
                     sh '''
                     echo "Transferring application files to EC2..."
                     ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "mkdir -p $APP_DIR"
-                    scp -o StrictHostKeyChecking=no -r TIC-TAC-TOE/* $EC2_USER@$EC2_HOST:$APP_DIR
+                    scp -o StrictHostKeyChecking=no -r TIC-TAC-TOE/* $EC2_USER@$EC2_HOST:$APP_DIR/
 
                     echo "Deploying application..."
                     ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
                     cd $APP_DIR
 
-                    echo "Starting Web Server..."
+                    # Kill existing Python server if running
+                    echo "Stopping existing Python server (if any)..."
+                    pkill -f "python3 -m http.server 8000" || true
+
+                    echo "Starting new Python web server..."
                     nohup python3 -m http.server 8000 > server.log 2>&1 &
 
                     echo "Deployment Complete! Access at http://$EC2_HOST:8000"
