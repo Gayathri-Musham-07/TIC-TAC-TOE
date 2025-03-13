@@ -16,7 +16,6 @@ let winningPattern = [
   [0, 4, 8],
   [2, 4, 6],
 ];
-
 //Player 'X' plays first
 let xTurn = true;
 let count = 0;
