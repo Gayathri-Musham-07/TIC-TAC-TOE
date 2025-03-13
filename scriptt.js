@@ -20,7 +20,6 @@ let winningPattern = [
 //Player 'X' plays first
 let xTurn = true;
 let count = 0;
-
 //Disable All Buttons
 const disableButtons = () => {
   btnRef.forEach((element) => (element.disabled = true));
